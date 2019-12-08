@@ -1,0 +1,254 @@
+#Tic Tac Toe Game in Python by Olga Mogaka.
+
+#import
+import random
+
+#if game is still in progress
+game_in_progress = True
+
+#win or tie
+winner = None
+    
+#Define the game board.
+board = [' ',' ',' ',' ',' ',' ',' ',' ',' ',' ']
+
+#This function dsplays the board. 
+def display_board():    
+    print(board[1],'|',board[2],'|',board[3])
+    print('--+---+--')
+    print(board[4],'|',board[5],'|',board[6])
+    print('--+---+--')
+    print(board[7],'|',board[8],'|',board[9])
+
+def insert_board(letter, position):
+    #global variable needed
+    global board
+    board[position] = letter
+ 
+#Checks if a spot on the board has a letter or is free. 
+def free_spot(position):
+    return board[position] == ' '
+
+# Loop through till game is over 
+while game_in_progress:
+
+#game has ended 
+    if winner == "X" or winner == "O":
+        print(winner + "won.")
+    elif winner == None:
+        print("Tie.")
+        break
+
+#Checks if each row, column or diagonal has 3 matching letters which is a win..
+def check_win():
+ #set up global variable
+  global game_in_progress
+  
+  #check rows
+  row_win = check_rows()
+  #check columns
+  column_win = check_columns()
+  #check diagonals
+  diagonal_win = check_diagonals()
+
+  #get the winner
+  if row_win:
+    winner = row_win
+  elif column_win:
+    winner = column_win
+  elif diagonal_win:
+    winner = diagonal_win
+  else:
+    winner = None
+  return
+
+#check rows for 3 in a row
+def check_rows():
+
+  #set up global variable
+  global game_in_progress
+
+  #check for same values in the rows
+  row_1 = board[1] == board[2] == board[3] != "-"
+  row_2 = board[4] == board[5] == board[6] != "-"
+  row_3 = board[7] == board[8] == board[9] != "-"
+  #if there is a win
+  if row_1 or row_2 or row_3:
+    game_in_progress = False
+
+  #check who won and return winner X or O
+  if row_1:
+    return board[1]
+  if row_2:
+    return board[4]
+  if row_3:
+    return board[7]
+
+  return
+
+#check columns for 3 in a row
+def check_columns():
+
+  #set up global variable
+  global game_in_progress
+
+  #check for same values in the rows
+  column_1 = board[1] == board[4] == board[7] != "-"
+  column_2 = board[2] == board[5] == board[8] != "-"
+  column_3 = board[3] == board[6] == board[9] != "-"
+  #if there is a win
+  if column_1 or column_2 or column_3:
+    game_in_progress = False
+
+  #check who won and return winner X or O
+  if column_1:
+    return board[1]
+  if column_2:
+    return board[2]
+  if column_3:
+    return board[3]
+
+  return
+
+#check diagonals for 3 in a row
+def check_diagonals():
+
+    #set up global variable
+  global game_in_progress
+
+  #check for same values in the rows
+  diagonal_1 = board[1] == board[5] == board[9] != "-"
+  diagonal_2 = board[3] == board[5] == board[7] != "-"
+  
+  #if there is a win
+  if diagonal_1 or diagonal_2:
+    game_in_progress = False
+
+  #check who won and return winner X or O
+  if diagonal_1:
+    return board[1]
+  if diagonal_2:
+    return board[3]
+
+  return
+#check if there is a tie
+def check_tie():
+  global game_in_progress
+  if "-" not in board:
+    game_in_progress = False
+  return
+
+  main()
+
+#Function to guide player on free spaces and those occupied
+def play():
+    run = True
+    while run:
+        move = input('Please select a position to place an \'X\' (1-9): ')
+        try:
+            move = int(move)
+            if move > 0 and move < 10:
+                if free_spot(move):
+                    run = False
+                    insert_board('X', move)
+                else:
+                    print('Sorry, this space is occupied!')
+            else:
+                print('Please type a number from 1-9: ')
+        except:
+            print('Invalid input. Please type a number!')
+       
+#Randomly selects a space for the computer 
+def random_select(li):
+    ln = len(li)
+    r = random.randrange(0, ln)
+    return li[r]   
+ 
+def comp_move():
+    possible_moves = [x for x, letter in enumerate(board) if letter == ' ' and x != 0]
+    move = 0
+   
+    #Check for possible winning move or to block opponents winning move
+    for let in ['O','X']:
+        for i in possible_moves:
+            copy_board = board[:]
+            copy_board[i] = let
+            if check_win():
+                move = i
+                return move
+ 
+    #Try to take one of the corners if available
+    corners_available = []
+    for i in possible_moves:
+        if i in [1,3,7,9]:
+            corners_available.append(i)
+    if len(corners_available) > 0:
+        move = random_select(corners_available)
+        return move
+   
+    #Try to take the center if available
+    if 5 in possible_moves:
+        move = 5
+        return move
+ 
+    #Take any edge if available
+    edges_available = []
+    for i in possible_moves:
+        if i in [2,4,6,8]:
+            edges_available.append(i)
+ 
+    if len(edges_available) > 0:
+        move = random_select(edges_available)
+ 
+    return move
+ 
+#Check to see if there are available spaces
+def board_full(board):
+    if board.count(' ') > 1:
+        return False
+    else:
+        return True
+ 
+#Main game loop
+def main():
+
+    print('Welcome to TIC TAC TOE GAME, to win complete a straight line of your letter (column, row or diaginally) and select positions 1-9 starting at the top left.')
+    display_board()
+ 
+    while not(board_full(board)):
+        if not(check_win()):
+            play()
+            display_board()
+        else:
+            print('Computer wins!')
+            break
+       
+        if not(check_win()):
+            move = comp_move()
+            if move == 0:
+                print('Game is a Tie!')
+            else:
+                insert_board('O', move)
+                print('Computer placed an \'O\' in position', move, ':')
+                display_board()
+        else:
+            print('Human wins!')
+            break
+
+#check if there is a tie
+def check_tie():
+  global game_in_progress
+  if "-" not in board:
+    game_in_progress = False
+  return
+
+  main()
+
+while True:
+    answer = input('Do you want to play again? (Y/N)')
+    if answer.lower() == 'y' or answer.lower == 'yes':
+        board = [' ' for x in range(10)]
+        print('----------------------------------')
+        main()
+    else:
+        break
